@@ -134,7 +134,106 @@ main{max-width:1100px;margin:auto;padding:0 14px 30px}.notice{border:1px solid #
    else warning='<p class="positive">Estimated size is at or below the risk budget before spread, commission, slippage, swaps, and currency conversion.</p>';
    out.innerHTML=`<div class="muted tiny">Estimated risk budget</div><strong>${money(riskMoney)}</strong><div class="rule"></div><div class="row space"><span class="muted">Risk per 1.00 lot</span><b>${money(riskPerLot)}</b></div><div class="row space"><span class="muted">Raw calculated lots</span><b>${rawLots.toFixed(4)}</b></div><div class="row space"><span class="muted">Rounded down to 0.01</span><b>${roundedLots.toFixed(2)} lot</b></div><div class="row space"><span class="muted">Potential reward at TP (rounded size)</span><b>${money(rewardPerLot*roundedLots)}</b></div><div class="row space"><span class="muted">Reward:risk ratio</span><b>1:${rewardRisk.toFixed(2)}</b></div>${warning}<p class="help">Simplified estimate: price distance × ounces per lot × lot size. Actual broker P/L can differ. Confirm contract specs and account currency.</p>`;
  }
- async function loadQuote(){
+ 
+async function loadQuote() {
+  const endpoint = $('endpoint').value.trim();
+  const result = $('connectionResult');
+
+  if (!endpoint) {
+    result.textContent = 'Enter the gold data endpoint.';
+    return;
+  }
+
+  let url;
+  try {
+    url = new URL(endpoint);
+  } catch {
+    result.textContent = 'Invalid endpoint URL.';
+    return;
+  }
+
+  if (url.protocol !== 'https:') {
+    result.textContent = 'Use a secure HTTPS endpoint.';
+    return;
+  }
+
+  result.textContent = 'Fetching gold market data...';
+
+  try {
+    const response = await fetch(url.href, {
+      headers: { Accept: 'application/json' },
+      cache: 'no-store'
+    });
+
+    if (!response.ok) {
+      throw new Error('HTTP ' + response.status);
+    }
+
+    const data = await response.json();
+    const isXaus = url.hostname === 'xaus.com' &&
+      url.pathname === '/api/v1/spot';
+
+    let price;
+    let timestamp;
+    let source;
+
+    if (isXaus) {
+      price = Number(data.spot_usd_oz);
+      timestamp = data.price_as_of || data.updated_at;
+      source = 'XAUS gold spot reference';
+
+      if (data.data_state?.status === 'unavailable') {
+        throw new Error('Gold price is unavailable');
+      }
+
+      if (data.data_state?.status === 'stale' || data.stale === true) {
+        throw new Error('Gold data is marked stale; retry later');
+      }
+    } else {
+      if (String(data.symbol || '').toUpperCase() !== 'XAUUSD') {
+        throw new Error('Expected symbol XAUUSD');
+      }
+      price = Number(data.price);
+      timestamp = data.timestamp;
+      source = 'Configured XAUUSD endpoint';
+    }
+
+    if (!Number.isFinite(price) || price <= 0) {
+      throw new Error('No valid gold price received');
+    }
+
+    if (!timestamp || !Number.isFinite(Date.parse(timestamp))) {
+      throw new Error('Feed timestamp missing or invalid');
+    }
+
+    const ageSeconds = (Date.now() - Date.parse(timestamp)) / 1000;
+
+    if (ageSeconds < -60 || ageSeconds > 300) {
+      throw new Error('Gold quote is older than 5 minutes or has a future timestamp');
+    }
+
+    $('price').value = price.toFixed(2);
+    $('heroPrice').textContent = money(price);
+    $('connectionStatus').textContent = '● GOLD DATA CONNECTED';
+    $('connectionStatus').style.color = '#55e5a0';
+    $('sourceLabel').textContent = source;
+    $('priceSub').textContent =
+      'Price timestamp: ' + new Date(timestamp).toLocaleString();
+
+    result.textContent =
+      'Gold price received: ' + money(price) +
+      '. Check your broker quote before trading.';
+
+    analyze();
+  } catch (error) {
+    $('connectionStatus').textContent = '● DATA NOT CONNECTED';
+    $('connectionStatus').style.color = '';
+    result.textContent =
+      'No verified fresh quote: ' + error.message +
+      '. No new signal should be trusted.';
+  }
+}
+
    const endpoint=$('endpoint').value.trim(), result=$('connectionResult');
    if(!endpoint){result.textContent='Enter your own trusted backend endpoint first. No broker is connected.';return}
    let url; try{url=new URL(endpoint)}catch(e){result.textContent='That endpoint URL is not valid.';return}
