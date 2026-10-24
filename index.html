@@ -3,88 +3,167 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#101827">
-<meta name="description" content="Signal-only XAUUSD helper using EMA 9/21, RSI 14 and ATR 14.">
-<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#101318">
+<meta name="description" content="XAUUSD analysis and trading risk tools">
+<link rel="manifest" href="./manifest.json">
 <title>Gold Signal Helper</title>
 <style>
-:root{color-scheme:dark;--bg:#0b1220;--panel:#141e30;--line:#29364b;--text:#eef4ff;--muted:#9aabc4;--green:#42d392;--red:#ff6b75;--gold:#f5c451}
-*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#101827,#090e18);font:16px system-ui,-apple-system,Segoe UI,sans-serif;color:var(--text);padding:env(safe-area-inset-top) 14px env(safe-area-inset-bottom)}
-main{max-width:620px;margin:auto;padding:18px 0 32px}.top{display:flex;align-items:center;gap:12px;margin-bottom:16px}.logo{width:46px;height:46px;border-radius:14px;background:#25324a;display:grid;place-items:center;font-size:24px}.sub{color:var(--muted);font-size:13px}.panel{background:rgba(20,30,48,.96);border:1px solid var(--line);border-radius:18px;padding:16px;margin:12px 0;box-shadow:0 8px 24px #0002}h1{font-size:23px;margin:0}h2{font-size:17px;margin:0 0 12px}label{display:block;color:var(--muted);font-size:13px;margin:12px 0 6px}input,select,button{font:inherit;border-radius:11px;border:1px solid var(--line);padding:12px;background:#0c1423;color:var(--text);width:100%}button{background:var(--gold);color:#171717;border:0;font-weight:750;margin-top:12px;cursor:pointer}button.secondary{background:#26344c;color:var(--text)}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.metric{background:#0c1423;border:1px solid var(--line);border-radius:13px;padding:12px}.metric .name{font-size:12px;color:var(--muted)}.metric .value{font-size:20px;font-weight:750;margin-top:4px;overflow-wrap:anywhere}.signal{border-radius:14px;padding:16px;text-align:center;background:#26344c}.signal strong{font-size:28px;letter-spacing:1px}.buy{color:var(--green)}.sell{color:var(--red)}.wait{color:var(--gold)}.notice{color:var(--muted);font-size:12px;line-height:1.5}.status{font-size:13px;color:var(--muted);line-height:1.5;white-space:pre-wrap}.row{display:flex;justify-content:space-between;gap:12px;align-items:center}.row span:last-child{text-align:right}.hidden{display:none}.smallbtn{width:auto;margin:0;padding:8px 10px;font-size:12px}.pill{border:1px solid var(--line);border-radius:99px;padding:5px 9px;font-size:12px;color:var(--muted)}a{color:#9bc8ff}
+:root{color-scheme:dark;--bg:#0b0e12;--panel:#141922;--panel2:#191f2a;--line:#29313d;--text:#eef2f7;--muted:#98a4b4;--gold:#d4af37;--green:#21c77a;--red:#ff5d68;--blue:#72a7ff}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% -15%,#242b35 0,#0b0e12 45%);color:var(--text);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}button,input,select{font:inherit}button{cursor:pointer}
+header{padding:22px 16px 14px;max-width:1100px;margin:auto;display:flex;justify-content:space-between;align-items:center;gap:12px}.brand{display:flex;gap:11px;align-items:center}.logo{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(145deg,#f1d779,#94721c);color:#151515;font-weight:900;font-size:21px}.eyebrow{color:var(--gold);font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:800}.brand h1{font-size:20px;margin:1px 0}.status{border:1px solid #664e12;color:#e9cd6b;border-radius:999px;padding:6px 10px;font-size:11px;white-space:nowrap}
+main{max-width:1100px;margin:auto;padding:0 14px 30px}.notice{border:1px solid #5d4a1a;background:#211d10;color:#e9dba8;border-radius:12px;padding:11px 13px;font-size:12px;margin:0 0 14px}.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:13px}.card{background:linear-gradient(150deg,#171d27,#11151c);border:1px solid var(--line);border-radius:16px;padding:16px;min-width:0}.span12{grid-column:span 12}.span8{grid-column:span 8}.span6{grid-column:span 6}.span4{grid-column:span 4}.cardhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.card h2{font-size:15px;margin:0}.muted{color:var(--muted)}.tiny{font-size:11px}.price{font-size:34px;font-weight:800;letter-spacing:-.04em;margin:4px 0}.price-sub{font-size:12px;color:var(--muted)}.pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:5px 9px;font-size:11px;color:var(--muted)}.dot{width:7px;height:7px;border-radius:50%;background:var(--gold)}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.space{justify-content:space-between}.metric{background:#0e1218;border:1px solid #242c37;border-radius:12px;padding:11px;min-width:0}.metric .value{font-size:19px;font-weight:750;margin-top:4px;overflow-wrap:anywhere}.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.signal{display:flex;justify-content:space-between;align-items:center;gap:12px}.signal-badge{font-size:12px;font-weight:900;letter-spacing:.06em;border-radius:10px;padding:9px 12px;background:#242a34;color:#b8c1cf}.signal-badge.buy{background:#0d3325;color:#55e5a0;border:1px solid #176e48}.signal-badge.sell{background:#3a171c;color:#ff8b93;border:1px solid #7c2932}.signal-badge.wait{background:#2b2617;color:#e9cd6b;border:1px solid #65521e}.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}.field input,.field select{width:100%;min-width:0;border:1px solid #333d4c;background:#0b0f15;color:var(--text);border-radius:10px;padding:11px 10px;outline:none}.field input:focus,.field select:focus{border-color:var(--gold)}.btn{border:0;border-radius:10px;background:var(--gold);color:#151515;font-weight:800;padding:11px 14px}.btn.secondary{background:#222a35;color:#e9edf3;border:1px solid #384352}.btn.full{width:100%;margin-top:12px}.help{font-size:11px;color:var(--muted);margin-top:7px}.result{border:1px solid var(--line);background:#0d1117;border-radius:12px;padding:12px;margin-top:12px}.result strong{font-size:18px}.positive{color:var(--green)}.negative{color:var(--red)}.gold{color:var(--gold)}.rule{height:1px;background:var(--line);margin:13px 0}.list{padding-left:18px;margin:8px 0;color:#c8d0da;font-size:13px}.list li{margin:5px 0}.footer{text-align:center;color:#778292;font-size:11px;padding:20px 0 0}
+@media(max-width:700px){header{padding-top:17px}.span8,.span6,.span4{grid-column:span 12}.price{font-size:31px}.metrics{grid-template-columns:repeat(3,minmax(0,1fr))}.metric{padding:9px}.metric .value{font-size:16px}.fields{gap:9px}.card{padding:14px}}
+@media(max-width:360px){.metrics{grid-template-columns:1fr}.fields{grid-template-columns:1fr}.status{display:none}}
 </style>
 </head>
 <body>
+<header>
+ <div class="brand"><div class="logo">Au</div><div><div class="eyebrow">XAUUSD • Trading workspace</div><h1>Gold Signal Helper</h1></div></div>
+ <div class="status" id="connectionStatus">● DATA NOT CONNECTED</div>
+</header>
 <main>
- <div class="top"><div class="logo">Au</div><div><h1>Gold Signal Helper</h1><div class="sub">XAUUSD · signal-only · no trade execution</div></div><span class="pill" style="margin-left:auto">M5</span></div>
- <div class="panel">
-  <h2>Connect market data</h2>
-  <p class="notice">This version uses Twelve Data. Create a free API key, then enter it below. Gold-symbol access and intraday availability depend on your plan. Your key is stored only in this browser on this phone. Do not share it.</p>
-  <label for="apiKey">Twelve Data API key</label><input id="apiKey" type="password" autocomplete="off" placeholder="Paste your API key">
-  <div class="grid">
-   <div><label for="symbol">Symbol</label><input id="symbol" value="XAU/USD"></div>
-   <div><label for="interval">Timeframe</label><select id="interval"><option value="5min">M5 (5 minutes)</option><option value="1min">M1 (1 minute)</option><option value="15min">M15 (15 minutes)</option><option value="30min">M30 (30 minutes)</option></select></div>
-  </div>
-  <button id="save">Save settings on this phone</button><button class="secondary" id="refresh">Fetch candles & calculate signal</button>
-  <div id="status" class="status" style="margin-top:12px">Not connected yet. Enter your API key and fetch data.</div>
+ <div class="notice"><strong>Risk notice:</strong> This tool is an analysis aid, not financial advice. It does not receive live prices until you connect a trusted data service. Signals are rule-based, not guaranteed. Verify every price and broker contract specification.</div>
+ <div class="grid">
+  <section class="card span8">
+   <div class="cardhead"><h2>Market overview</h2><span class="pill"><span class="dot"></span><span id="sourceLabel">Manual / demo inputs</span></span></div>
+   <div class="row space"><div><div class="muted tiny">XAUUSD reference price (USD/oz)</div><div class="price" id="heroPrice">—</div><div class="price-sub" id="priceSub">Enter a current price below; no live quote is assumed.</div></div><div class="signal-badge wait" id="signalBadge">WAIT</div></div>
+   <div class="rule"></div>
+   <div class="metrics">
+    <div class="metric"><div class="muted tiny">Trend</div><div class="value" id="trendMetric">—</div></div>
+    <div class="metric"><div class="muted tiny">RSI (14)</div><div class="value" id="rsiMetric">—</div></div>
+    <div class="metric"><div class="muted tiny">Signal score</div><div class="value" id="scoreMetric">—</div></div>
+   </div>
+  </section>
+  <section class="card span4">
+   <div class="cardhead"><h2>Signal assessment</h2><span class="pill">Rule-based</span></div>
+   <div class="muted tiny">Current result</div><h2 id="signalTitle" style="font-size:24px;margin:5px 0 8px">WAIT</h2>
+   <p class="muted" id="signalReason" style="font-size:13px;margin:0">Enter market values and tap Analyze market.</p>
+   <ul class="list" id="signalChecks"><li>Price and indicator values required</li></ul>
+   <div class="help">BUY/SELL only appears when the configured conditions align. Conflicting or missing inputs result in WAIT.</div>
+  </section>
+  <section class="card span6">
+   <div class="cardhead"><h2>Market inputs</h2><span class="pill">No fabricated quotes</span></div>
+   <div class="fields">
+    <div class="field"><label for="price">Current XAUUSD price ($/oz)</label><input id="price" type="number" min="0.01" step="0.01" placeholder="Enter verified price"></div>
+    <div class="field"><label for="ema20">EMA 20</label><input id="ema20" type="number" min="0" step="0.01" placeholder="From your chart"></div>
+    <div class="field"><label for="ema50">EMA 50</label><input id="ema50" type="number" min="0" step="0.01" placeholder="From your chart"></div>
+    <div class="field"><label for="rsi">RSI (14)</label><input id="rsi" type="number" min="0" max="100" step="0.1" placeholder="0–100"></div>
+    <div class="field"><label for="support">Support (optional)</label><input id="support" type="number" min="0" step="0.01" placeholder="Price level"></div>
+    <div class="field"><label for="resistance">Resistance (optional)</label><input id="resistance" type="number" min="0" step="0.01" placeholder="Price level"></div>
+   </div>
+   <button class="btn full" id="analyzeBtn">Analyze market</button>
+   <div class="help">Use values from the same symbol and timeframe. This simple rule set is educational and does not replace full chart analysis.</div>
+  </section>
+  <section class="card span6">
+   <div class="cardhead"><h2>Trade planner</h2><span class="pill">Risk first</span></div>
+   <div class="fields">
+    <div class="field"><label for="balance">Account balance ($)</label><input id="balance" type="number" min="0" step="0.01" value="10"></div>
+    <div class="field"><label for="riskPct">Risk per trade (%)</label><input id="riskPct" type="number" min="0.1" max="5" step="0.1" value="1"></div>
+    <div class="field"><label for="side">Trade direction</label><select id="side"><option value="buy">BUY / Long</option><option value="sell">SELL / Short</option></select></div>
+    <div class="field"><label for="entry">Entry price</label><input id="entry" type="number" min="0.01" step="0.01" placeholder="Entry"></div>
+    <div class="field"><label for="sl">Stop-loss price</label><input id="sl" type="number" min="0.01" step="0.01" placeholder="Stop loss"></div>
+    <div class="field"><label for="tp">Take-profit price</label><input id="tp" type="number" min="0.01" step="0.01" placeholder="Take profit"></div>
+    <div class="field"><label for="contract">Contract size (oz per 1.00 lot)</label><input id="contract" type="number" min="0.01" step="0.01" value="100"></div>
+    <div class="field"><label for="minLot">Broker minimum lot</label><input id="minLot" type="number" min="0.001" step="0.001" value="0.01"></div>
+   </div>
+   <button class="btn full" id="riskBtn">Calculate risk & position size</button>
+   <div class="help">Defaults are examples only. Verify contract size, lot step, minimum volume, leverage, commission, and account currency with your broker before trading.</div>
+   <div class="result" id="riskResult" aria-live="polite">Enter entry, stop-loss and take-profit to estimate risk and reward.</div>
+  </section>
+  <section class="card span12">
+   <div class="cardhead"><h2>Broker / live data connection</h2><span class="pill">Secure setup required</span></div>
+   <p class="muted" style="font-size:13px;margin-top:0">A static GitHub Pages website cannot safely hold a broker password or private API key, and it usually cannot connect directly to the MT5 desktop terminal. Use a broker-supported API or your own small backend/proxy. Never paste broker passwords or secret API keys into this page or a public GitHub repository.</p>
+   <div class="fields">
+    <div class="field"><label for="endpoint">Your trusted backend quote endpoint (optional)</label><input id="endpoint" type="url" placeholder="https://your-server.example/api/xauusd"></div>
+    <div class="field"><label for="refresh">Refresh interval</label><select id="refresh"><option value="0">Manual only</option><option value="30">Every 30 seconds</option><option value="60">Every 60 seconds</option></select></div>
+   </div>
+   <button class="btn full" id="connectBtn">Test endpoint / load quote</button>
+   <div class="help">Expected JSON from your own endpoint: {"symbol":"XAUUSD","price":1234.56,"timestamp":"2026-01-01T12:00:00Z"}. These are field examples, not market data. Endpoint must allow your website through CORS and must not expose secrets.</div>
+   <div class="result" id="connectionResult" aria-live="polite">Not connected. Enter an endpoint only after you have a trusted API/backend.</div>
+  </section>
  </div>
- <div class="panel">
-  <div class="row"><h2>Current signal</h2><span id="stamp" class="pill">No data</span></div>
-  <div id="signal" class="signal"><strong class="wait">WAIT</strong><div class="sub" style="margin-top:6px">Fetch market data to calculate indicators.</div></div>
-  <div class="grid" style="margin-top:12px">
-   <div class="metric"><div class="name">Latest close</div><div class="value" id="price">—</div></div>
-   <div class="metric"><div class="name">EMA 9 / EMA 21</div><div class="value" id="emas">—</div></div>
-   <div class="metric"><div class="name">RSI (14)</div><div class="value" id="rsi">—</div></div>
-   <div class="metric"><div class="name">ATR (14)</div><div class="value" id="atr">—</div></div>
-  </div>
- </div>
- <div class="panel">
-  <h2>Signal rules</h2>
-  <p class="notice"><b class="buy">BUY candidate:</b> EMA 9 above EMA 21, RSI between 52 and 68, and the latest close above EMA 9.</p>
-  <p class="notice"><b class="sell">SELL candidate:</b> EMA 9 below EMA 21, RSI between 32 and 48, and the latest close below EMA 9.</p>
-  <p class="notice"><b class="wait">WAIT:</b> conditions disagree, data is stale, or there are too few candles. A signal is a technical condition, not a prediction or guarantee.</p>
- </div>
- <div class="panel">
-  <h2>Safety & data notes</h2>
-  <p class="notice">This is not connected to your MT5 account and cannot see your balance or positions. Data can differ from your broker's XAUUSD feed. Confirm quotes, spread, session status and candle timing in MT5 before acting. No orders are placed by this app.</p>
-  <p class="notice">Free API quotas are limited. Fetch manually rather than refreshing repeatedly. If data is unavailable, check the provider's symbol access and plan.</p>
-  <button class="secondary" id="clear">Clear saved API key</button>
- </div>
- <p class="notice">Educational tool only. Trading leveraged gold can cause rapid losses. Never risk money you cannot afford to lose.</p>
+ <div class="footer">Gold Signal Helper • Educational tool • Always verify quotes and broker specifications.</div>
 </main>
 <script>
-const $=id=>document.getElementById(id);
-function setStatus(s){$('status').textContent=s}
-function num(v){const n=Number(v);return Number.isFinite(n)?n:NaN}
-function ema(values,period){if(values.length<period)return NaN;let e=values.slice(0,period).reduce((a,b)=>a+b,0)/period;const k=2/(period+1);for(let i=period;i<values.length;i++)e=values[i]*k+e*(1-k);return e}
-function rsi(values,period=14){if(values.length<=period)return NaN;let gain=0,loss=0;for(let i=1;i<=period;i++){let d=values[i]-values[i-1];if(d>0)gain+=d;else loss-=d}let ag=gain/period,al=loss/period;for(let i=period+1;i<values.length;i++){let d=values[i]-values[i-1];ag=(ag*(period-1)+Math.max(0,d))/period;al=(al*(period-1)+Math.max(0,-d))/period}if(al===0)return 100;return 100-100/(1+ag/al)}
-function atr(candles,period=14){if(candles.length<=period)return NaN;let trs=[];for(let i=1;i<candles.length;i++){const c=candles[i],p=candles[i-1];trs.push(Math.max(c.high-c.low,Math.abs(c.high-p.close),Math.abs(c.low-p.close)))}let a=trs.slice(0,period).reduce((x,y)=>x+y,0)/period;for(let i=period;i<trs.length;i++)a=(a*(period-1)+trs[i])/period;return a}
-function fmt(n){return Number.isFinite(n)?n.toFixed(2):'—'}
-function showSignal(text,cls,detail){$('signal').innerHTML=`<strong class="${cls}">${text}</strong><div class="sub" style="margin-top:6px">${detail}</div>`}
-function loadSettings(){const key=localStorage.getItem('td_key');if(key)$('apiKey').value=key;$('symbol').value=localStorage.getItem('td_symbol')||'XAU/USD';$('interval').value=localStorage.getItem('td_interval')||'5min'}
-$('save').onclick=()=>{const key=$('apiKey').value.trim();if(key)localStorage.setItem('td_key',key);localStorage.setItem('td_symbol',$('symbol').value.trim()||'XAU/USD');localStorage.setItem('td_interval',$('interval').value);setStatus('Settings saved on this device. Tap “Fetch candles & calculate signal” to request data.')};
-$('clear').onclick=()=>{localStorage.removeItem('td_key');localStorage.removeItem('td_symbol');localStorage.removeItem('td_interval');$('apiKey').value='';setStatus('Saved settings cleared from this browser.')};
-$('refresh').onclick=async()=>{const key=$('apiKey').value.trim();const symbol=$('symbol').value.trim()||'XAU/USD';const interval=$('interval').value;if(!key){setStatus('Enter your Twelve Data API key first.');return}localStorage.setItem('td_key',key);localStorage.setItem('td_symbol',symbol);localStorage.setItem('td_interval',interval);setStatus('Requesting candle data…');$('stamp').textContent='Loading';$('refresh').disabled=true;
-try{
- const url=`https://api.twelvedata.com/time_series?symbol=${encodeURIComponent(symbol)}&interval=${encodeURIComponent(interval)}&outputsize=100&order=ASC&apikey=${encodeURIComponent(key)}`;
- const response=await fetch(url);const data=await response.json();
- if(!response.ok||data.status==='error'||!Array.isArray(data.values)){throw new Error(data.message||data.code||'Provider did not return candle data. Check key, symbol access, quota and plan.')}
- const candles=data.values.map(v=>({datetime:v.datetime,open:num(v.open),high:num(v.high),low:num(v.low),close:num(v.close)})).filter(c=>[c.open,c.high,c.low,c.close].every(Number.isFinite));
- if(candles.length<30)throw new Error('Not enough valid candles to calculate EMA 21 and RSI/ATR reliably.');
- const closes=candles.map(c=>c.close),last=candles[candles.length-1],e9=ema(closes,9),e21=ema(closes,21),rv=rsi(closes,14),av=atr(candles,14);
- $('price').textContent=fmt(last.close);$('emas').textContent=`${fmt(e9)} / ${fmt(e21)}`;$('rsi').textContent=fmt(rv);$('atr').textContent=fmt(av);$('stamp').textContent=last.datetime||'Updated';
- const ageMins=(Date.now()-new Date(last.datetime.replace(' ','T')+'Z').getTime())/60000;
- const stale=Number.isFinite(ageMins)&&ageMins>(interval==='1min'?10:interval==='5min'?30:interval==='15min'?75:150);
- let signal='WAIT',cls='wait',detail='Conditions are mixed; wait for confirmation.';
- if(!stale&&e9>e21&&rv>=52&&rv<=68&&last.close>e9){signal='BUY';cls='buy';detail='Bullish conditions align. Verify broker price, spread and candle close.'}
- else if(!stale&&e9<e21&&rv>=32&&rv<=48&&last.close<e9){signal='SELL';cls='sell';detail='Bearish conditions align. Verify broker price, spread and candle close.'}
- else if(stale){detail='Latest candle may be stale or market may be closed. Signal suppressed.'}
- showSignal(signal,cls,detail);
- setStatus(`Received ${candles.length} candles. Last candle: ${last.datetime||'timestamp unavailable'}. ${stale?'Data may be stale; no entry signal is issued.':'Signal calculated from provider data.'} Data provider: Twelve Data. This may differ from MT5 broker quotes.`);
-}catch(e){showSignal('WAIT','wait','No reliable signal: market data could not be confirmed.');setStatus(`Could not fetch data: ${e.message}\nCheck internet, API key, symbol access and free-plan quota.`)}
-finally{$('refresh').disabled=false;$('stamp').textContent=$('stamp').textContent==='Loading'?'No data':$('stamp').textContent}
-};
-loadSettings();
-if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
+(() => {
+ const $ = id => document.getElementById(id);
+ let refreshTimer = null;
+ function num(id){ const v = Number($(id).value); return $(id).value.trim() !== '' && Number.isFinite(v) ? v : null; }
+ function money(v){ return Number.isFinite(v) ? '$'+v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}) : '—'; }
+ function analyze(){
+   const p=num('price'), e20=num('ema20'), e50=num('ema50'), rsi=num('rsi'), s=num('support'), r=num('resistance');
+   $('heroPrice').textContent = p && p>0 ? money(p) : '—';
+   $('priceSub').textContent = p && p>0 ? 'Manually entered reference price; verify timestamp and spread.' : 'Enter a current price below; no live quote is assumed.';
+   $('rsiMetric').textContent = rsi!==null && rsi>=0 && rsi<=100 ? rsi.toFixed(1) : '—';
+   const valid = p!==null && p>0 && e20!==null && e50!==null && rsi!==null && rsi>=0 && rsi<=100;
+   const checks=[];
+   let bull=0,bear=0;
+   if(valid){
+     if(p>e20){bull++;checks.push('Price is above EMA 20 (bullish)')}else if(p<e20){bear++;checks.push('Price is below EMA 20 (bearish)')}else checks.push('Price equals EMA 20 (neutral)');
+     if(e20>e50){bull++;checks.push('EMA 20 is above EMA 50 (bullish trend)')}else if(e20<e50){bear++;checks.push('EMA 20 is below EMA 50 (bearish trend)')}else checks.push('EMAs are equal (neutral)');
+     if(rsi>=50 && rsi<70){bull++;checks.push('RSI momentum is above 50 but below 70')}else if(rsi<=50 && rsi>30){bear++;checks.push('RSI momentum is below 50 but above 30')}else if(rsi>=70){checks.push('RSI is 70 or higher: possible overbought condition')}else checks.push('RSI is 30 or lower: possible oversold condition');
+     if(s!==null && p<=s*1.003)checks.push('Price is near/under entered support; confirm level');
+     if(r!==null && p>=r*0.997)checks.push('Price is near/over entered resistance; confirm level');
+   }else checks.push('Enter a positive price, EMA 20, EMA 50, and RSI from the same timeframe.');
+   let signal='WAIT', reason='Required inputs are missing or conflicting.';
+   if(valid && bull>=3 && bear===0 && rsi<70){signal='BUY';reason='Bullish conditions align under this simple rule set; confirm structure, spread, news and stop-loss.'}
+   else if(valid && bear>=3 && bull===0 && rsi>30){signal='SELL';reason='Bearish conditions align under this simple rule set; confirm structure, spread, news and stop-loss.'}
+   else if(valid){reason='Conditions are mixed or momentum is stretched. Waiting is safer than forcing a trade.'}
+   const badge=$('signalBadge'); badge.textContent=signal;badge.className='signal-badge '+signal.toLowerCase();
+   $('signalTitle').textContent=signal;$('signalReason').textContent=reason;
+   $('trendMetric').textContent=valid?(e20>e50?'Bullish':e20<e50?'Bearish':'Flat'):'—';
+   $('scoreMetric').textContent=valid?bull+' bull / '+bear+' bear':'—';
+   $('signalChecks').innerHTML=checks.map(x=>'<li>'+x.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))+'</li>').join('');
+ }
+ function calcRisk(){
+   const bal=num('balance'), pct=num('riskPct'), entry=num('entry'), sl=num('sl'), tp=num('tp'), contract=num('contract'), minLot=num('minLot'), side=$('side').value;
+   const out=$('riskResult');
+   if([bal,pct,entry,sl,tp,contract,minLot].some(v=>v===null)||bal<=0||pct<=0||pct>5||entry<=0||sl<=0||tp<=0||contract<=0||minLot<=0){out.textContent='Please enter valid positive values. Risk percentage must be above 0 and no more than 5%.';return}
+   if((side==='buy' && !(sl<entry && tp>entry))||(side==='sell' && !(sl>entry && tp<entry))){out.textContent='Check direction: for BUY, SL must be below entry and TP above; for SELL, SL must be above entry and TP below.';return}
+   const riskPerLot=Math.abs(entry-sl)*contract;
+   const rewardPerLot=Math.abs(tp-entry)*contract;
+   const riskMoney=bal*pct/100;
+   const rawLots=riskMoney/riskPerLot;
+   const lots=Math.floor((rawLots+1e-10)*1000)/1000;
+   const roundedLots=Math.floor((rawLots+1e-10)*100)/100;
+   const rewardRisk=rewardPerLot/riskPerLot;
+   const maxRiskAtMin=Math.abs(entry-sl)*contract*minLot;
+   let warning='';
+   if(roundedLots<minLot) warning=`<p class="negative"><strong>Warning:</strong> The calculated size is below your broker minimum (${minLot} lot). Do not round up automatically; the minimum lot may risk about ${money(maxRiskAtMin)}, above your ${money(riskMoney)} risk budget.</p>`;
+   else if(roundedLots>rawLots+1e-9) warning='<p class="negative">Warning: rounded size exceeds the calculated risk budget. Reduce it.</p>';
+   else warning='<p class="positive">Estimated size is at or below the risk budget before spread, commission, slippage, swaps, and currency conversion.</p>';
+   out.innerHTML=`<div class="muted tiny">Estimated risk budget</div><strong>${money(riskMoney)}</strong><div class="rule"></div><div class="row space"><span class="muted">Risk per 1.00 lot</span><b>${money(riskPerLot)}</b></div><div class="row space"><span class="muted">Raw calculated lots</span><b>${rawLots.toFixed(4)}</b></div><div class="row space"><span class="muted">Rounded down to 0.01</span><b>${roundedLots.toFixed(2)} lot</b></div><div class="row space"><span class="muted">Potential reward at TP (rounded size)</span><b>${money(rewardPerLot*roundedLots)}</b></div><div class="row space"><span class="muted">Reward:risk ratio</span><b>1:${rewardRisk.toFixed(2)}</b></div>${warning}<p class="help">Simplified estimate: price distance × ounces per lot × lot size. Actual broker P/L can differ. Confirm contract specs and account currency.</p>`;
+ }
+ async function loadQuote(){
+   const endpoint=$('endpoint').value.trim(), result=$('connectionResult');
+   if(!endpoint){result.textContent='Enter your own trusted backend endpoint first. No broker is connected.';return}
+   let url; try{url=new URL(endpoint)}catch(e){result.textContent='That endpoint URL is not valid.';return}
+   if(url.protocol!=='https:' && location.protocol==='https:'){result.textContent='Use an HTTPS endpoint on a secure website.';return}
+   result.textContent='Connecting…';
+   try{
+     const response=await fetch(url.href,{headers:{'Accept':'application/json'},cache:'no-store'});
+     if(!response.ok)throw new Error('HTTP '+response.status);
+     const data=await response.json();
+     if(String(data.symbol||'').toUpperCase()!=='XAUUSD'||typeof data.price!=='number'||!Number.isFinite(data.price)||data.price<=0)throw new Error('Expected JSON with symbol "XAUUSD" and a positive numeric price.');
+     $('price').value=data.price.toFixed(2);$('heroPrice').textContent=money(data.price);
+     $('connectionStatus').textContent='● ENDPOINT CONNECTED';$('connectionStatus').style.color='#55e5a0';$('sourceLabel').textContent='Your configured endpoint';
+     $('priceSub').textContent='Quote timestamp: '+(data.timestamp||'not supplied')+'. Verify freshness and broker feed.';
+     result.textContent='Quote loaded. '+data.symbol+' '+money(data.price)+' | timestamp: '+(data.timestamp||'not supplied');
+     analyze();
+   }catch(e){$('connectionStatus').textContent='● DATA NOT CONNECTED';$('connectionStatus').style.color='';result.textContent='Connection failed: '+e.message+'. Check endpoint, JSON shape, HTTPS and CORS. No price was fabricated.'}
+ }
+ function setupRefresh(){
+   if(refreshTimer)clearInterval(refreshTimer);
+   const seconds=Number($('refresh').value);
+   if(seconds>0)refreshTimer=setInterval(loadQuote,seconds*1000);
+ }
+ $('analyzeBtn').addEventListener('click',analyze);
+ $('riskBtn').addEventListener('click',calcRisk);
+ $('connectBtn').addEventListener('click',loadQuote);
+ $('refresh').addEventListener('change',setupRefresh);
+ if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js').catch(()=>{});
+ analyze();
+})();
 </script>
 </body>
 </html>
