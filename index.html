@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101827">
+<meta name="description" content="Signal-only XAUUSD helper using EMA 9/21, RSI 14 and ATR 14.">
+<link rel="manifest" href="manifest.json">
+<title>Gold Signal Helper</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1220;--panel:#141e30;--line:#29364b;--text:#eef4ff;--muted:#9aabc4;--green:#42d392;--red:#ff6b75;--gold:#f5c451}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#101827,#090e18);font:16px system-ui,-apple-system,Segoe UI,sans-serif;color:var(--text);padding:env(safe-area-inset-top) 14px env(safe-area-inset-bottom)}
+main{max-width:620px;margin:auto;padding:18px 0 32px}.top{display:flex;align-items:center;gap:12px;margin-bottom:16px}.logo{width:46px;height:46px;border-radius:14px;background:#25324a;display:grid;place-items:center;font-size:24px}.sub{color:var(--muted);font-size:13px}.panel{background:rgba(20,30,48,.96);border:1px solid var(--line);border-radius:18px;padding:16px;margin:12px 0;box-shadow:0 8px 24px #0002}h1{font-size:23px;margin:0}h2{font-size:17px;margin:0 0 12px}label{display:block;color:var(--muted);font-size:13px;margin:12px 0 6px}input,select,button{font:inherit;border-radius:11px;border:1px solid var(--line);padding:12px;background:#0c1423;color:var(--text);width:100%}button{background:var(--gold);color:#171717;border:0;font-weight:750;margin-top:12px;cursor:pointer}button.secondary{background:#26344c;color:var(--text)}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.metric{background:#0c1423;border:1px solid var(--line);border-radius:13px;padding:12px}.metric .name{font-size:12px;color:var(--muted)}.metric .value{font-size:20px;font-weight:750;margin-top:4px;overflow-wrap:anywhere}.signal{border-radius:14px;padding:16px;text-align:center;background:#26344c}.signal strong{font-size:28px;letter-spacing:1px}.buy{color:var(--green)}.sell{color:var(--red)}.wait{color:var(--gold)}.notice{color:var(--muted);font-size:12px;line-height:1.5}.status{font-size:13px;color:var(--muted);line-height:1.5;white-space:pre-wrap}.row{display:flex;justify-content:space-between;gap:12px;align-items:center}.row span:last-child{text-align:right}.hidden{display:none}.smallbtn{width:auto;margin:0;padding:8px 10px;font-size:12px}.pill{border:1px solid var(--line);border-radius:99px;padding:5px 9px;font-size:12px;color:var(--muted)}a{color:#9bc8ff}
+</style>
+</head>
+<body>
+<main>
+ <div class="top"><div class="logo">Au</div><div><h1>Gold Signal Helper</h1><div class="sub">XAUUSD · signal-only · no trade execution</div></div><span class="pill" style="margin-left:auto">M5</span></div>
+ <div class="panel">
+  <h2>Connect market data</h2>
+  <p class="notice">This version uses Twelve Data. Create a free API key, then enter it below. Gold-symbol access and intraday availability depend on your plan. Your key is stored only in this browser on this phone. Do not share it.</p>
+  <label for="apiKey">Twelve Data API key</label><input id="apiKey" type="password" autocomplete="off" placeholder="Paste your API key">
+  <div class="grid">
+   <div><label for="symbol">Symbol</label><input id="symbol" value="XAU/USD"></div>
+   <div><label for="interval">Timeframe</label><select id="interval"><option value="5min">M5 (5 minutes)</option><option value="1min">M1 (1 minute)</option><option value="15min">M15 (15 minutes)</option><option value="30min">M30 (30 minutes)</option></select></div>
+  </div>
+  <button id="save">Save settings on this phone</button><button class="secondary" id="refresh">Fetch candles & calculate signal</button>
+  <div id="status" class="status" style="margin-top:12px">Not connected yet. Enter your API key and fetch data.</div>
+ </div>
+ <div class="panel">
+  <div class="row"><h2>Current signal</h2><span id="stamp" class="pill">No data</span></div>
+  <div id="signal" class="signal"><strong class="wait">WAIT</strong><div class="sub" style="margin-top:6px">Fetch market data to calculate indicators.</div></div>
+  <div class="grid" style="margin-top:12px">
+   <div class="metric"><div class="name">Latest close</div><div class="value" id="price">—</div></div>
+   <div class="metric"><div class="name">EMA 9 / EMA 21</div><div class="value" id="emas">—</div></div>
+   <div class="metric"><div class="name">RSI (14)</div><div class="value" id="rsi">—</div></div>
+   <div class="metric"><div class="name">ATR (14)</div><div class="value" id="atr">—</div></div>
+  </div>
+ </div>
+ <div class="panel">
+  <h2>Signal rules</h2>
+  <p class="notice"><b class="buy">BUY candidate:</b> EMA 9 above EMA 21, RSI between 52 and 68, and the latest close above EMA 9.</p>
+  <p class="notice"><b class="sell">SELL candidate:</b> EMA 9 below EMA 21, RSI between 32 and 48, and the latest close below EMA 9.</p>
+  <p class="notice"><b class="wait">WAIT:</b> conditions disagree, data is stale, or there are too few candles. A signal is a technical condition, not a prediction or guarantee.</p>
+ </div>
+ <div class="panel">
+  <h2>Safety & data notes</h2>
+  <p class="notice">This is not connected to your MT5 account and cannot see your balance or positions. Data can differ from your broker's XAUUSD feed. Confirm quotes, spread, session status and candle timing in MT5 before acting. No orders are placed by this app.</p>
+  <p class="notice">Free API quotas are limited. Fetch manually rather than refreshing repeatedly. If data is unavailable, check the provider's symbol access and plan.</p>
+  <button class="secondary" id="clear">Clear saved API key</button>
+ </div>
+ <p class="notice">Educational tool only. Trading leveraged gold can cause rapid losses. Never risk money you cannot afford to lose.</p>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+function setStatus(s){$('status').textContent=s}
+function num(v){const n=Number(v);return Number.isFinite(n)?n:NaN}
+function ema(values,period){if(values.length<period)return NaN;let e=values.slice(0,period).reduce((a,b)=>a+b,0)/period;const k=2/(period+1);for(let i=period;i<values.length;i++)e=values[i]*k+e*(1-k);return e}
+function rsi(values,period=14){if(values.length<=period)return NaN;let gain=0,loss=0;for(let i=1;i<=period;i++){let d=values[i]-values[i-1];if(d>0)gain+=d;else loss-=d}let ag=gain/period,al=loss/period;for(let i=period+1;i<values.length;i++){let d=values[i]-values[i-1];ag=(ag*(period-1)+Math.max(0,d))/period;al=(al*(period-1)+Math.max(0,-d))/period}if(al===0)return 100;return 100-100/(1+ag/al)}
+function atr(candles,period=14){if(candles.length<=period)return NaN;let trs=[];for(let i=1;i<candles.length;i++){const c=candles[i],p=candles[i-1];trs.push(Math.max(c.high-c.low,Math.abs(c.high-p.close),Math.abs(c.low-p.close)))}let a=trs.slice(0,period).reduce((x,y)=>x+y,0)/period;for(let i=period;i<trs.length;i++)a=(a*(period-1)+trs[i])/period;return a}
+function fmt(n){return Number.isFinite(n)?n.toFixed(2):'—'}
+function showSignal(text,cls,detail){$('signal').innerHTML=`<strong class="${cls}">${text}</strong><div class="sub" style="margin-top:6px">${detail}</div>`}
+function loadSettings(){const key=localStorage.getItem('td_key');if(key)$('apiKey').value=key;$('symbol').value=localStorage.getItem('td_symbol')||'XAU/USD';$('interval').value=localStorage.getItem('td_interval')||'5min'}
+$('save').onclick=()=>{const key=$('apiKey').value.trim();if(key)localStorage.setItem('td_key',key);localStorage.setItem('td_symbol',$('symbol').value.trim()||'XAU/USD');localStorage.setItem('td_interval',$('interval').value);setStatus('Settings saved on this device. Tap “Fetch candles & calculate signal” to request data.')};
+$('clear').onclick=()=>{localStorage.removeItem('td_key');localStorage.removeItem('td_symbol');localStorage.removeItem('td_interval');$('apiKey').value='';setStatus('Saved settings cleared from this browser.')};
+$('refresh').onclick=async()=>{const key=$('apiKey').value.trim();const symbol=$('symbol').value.trim()||'XAU/USD';const interval=$('interval').value;if(!key){setStatus('Enter your Twelve Data API key first.');return}localStorage.setItem('td_key',key);localStorage.setItem('td_symbol',symbol);localStorage.setItem('td_interval',interval);setStatus('Requesting candle data…');$('stamp').textContent='Loading';$('refresh').disabled=true;
+try{
+ const url=`https://api.twelvedata.com/time_series?symbol=${encodeURIComponent(symbol)}&interval=${encodeURIComponent(interval)}&outputsize=100&order=ASC&apikey=${encodeURIComponent(key)}`;
+ const response=await fetch(url);const data=await response.json();
+ if(!response.ok||data.status==='error'||!Array.isArray(data.values)){throw new Error(data.message||data.code||'Provider did not return candle data. Check key, symbol access, quota and plan.')}
+ const candles=data.values.map(v=>({datetime:v.datetime,open:num(v.open),high:num(v.high),low:num(v.low),close:num(v.close)})).filter(c=>[c.open,c.high,c.low,c.close].every(Number.isFinite));
+ if(candles.length<30)throw new Error('Not enough valid candles to calculate EMA 21 and RSI/ATR reliably.');
+ const closes=candles.map(c=>c.close),last=candles[candles.length-1],e9=ema(closes,9),e21=ema(closes,21),rv=rsi(closes,14),av=atr(candles,14);
+ $('price').textContent=fmt(last.close);$('emas').textContent=`${fmt(e9)} / ${fmt(e21)}`;$('rsi').textContent=fmt(rv);$('atr').textContent=fmt(av);$('stamp').textContent=last.datetime||'Updated';
+ const ageMins=(Date.now()-new Date(last.datetime.replace(' ','T')+'Z').getTime())/60000;
+ const stale=Number.isFinite(ageMins)&&ageMins>(interval==='1min'?10:interval==='5min'?30:interval==='15min'?75:150);
+ let signal='WAIT',cls='wait',detail='Conditions are mixed; wait for confirmation.';
+ if(!stale&&e9>e21&&rv>=52&&rv<=68&&last.close>e9){signal='BUY';cls='buy';detail='Bullish conditions align. Verify broker price, spread and candle close.'}
+ else if(!stale&&e9<e21&&rv>=32&&rv<=48&&last.close<e9){signal='SELL';cls='sell';detail='Bearish conditions align. Verify broker price, spread and candle close.'}
+ else if(stale){detail='Latest candle may be stale or market may be closed. Signal suppressed.'}
+ showSignal(signal,cls,detail);
+ setStatus(`Received ${candles.length} candles. Last candle: ${last.datetime||'timestamp unavailable'}. ${stale?'Data may be stale; no entry signal is issued.':'Signal calculated from provider data.'} Data provider: Twelve Data. This may differ from MT5 broker quotes.`);
+}catch(e){showSignal('WAIT','wait','No reliable signal: market data could not be confirmed.');setStatus(`Could not fetch data: ${e.message}\nCheck internet, API key, symbol access and free-plan quota.`)}
+finally{$('refresh').disabled=false;$('stamp').textContent=$('stamp').textContent==='Loading'?'No data':$('stamp').textContent}
+};
+loadSettings();
+if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
+</script>
+</body>
+</html>
