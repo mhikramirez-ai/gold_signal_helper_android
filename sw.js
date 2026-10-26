@@ -1,5 +1,5 @@
 
-const CACHE_NAME = "gold-signal-helper-v1";
+const CACHE_NAME = "gold-signal-helper-v2";
 const APP_FILES = ["./", "./index.html", "./manifest.json"];
 
 self.addEventListener("install", event => {
